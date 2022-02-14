@@ -1,0 +1,409 @@
+---
+title: 'Überblick: CMS-API'
+description: 'In diesem Thema erhalten Sie einen Überblick über die CMS-API. Die <span translate="No">CMS-API</span> bietet ungecachten Lesezugriff auf die Daten. Dies ist wichtig für zeitkritische Veröffentlichungsworkflows, da Sie Änderungen an Videos und Playlists mithilfe der <span translate="No">CMS-API</span> und lesen Sie schnell die Daten, um zu überprüfen, ob sie richtig sind.'
+parent: 'Getting Started' 
+grandparent: CMS API
+---
+ <h1>{{ page.title }}</h1>
+<article class="bcls-article">
+  <summary>{{ page.description }}</summary>
+  <section class="bcls-section">
+  <h2 id="api-reference">API-Referenz</h2>
+  
+  <p>Siehe auch die <a href="/cms/references/reference.html">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="General_Information">Allgemeine Informationen</h2>
+  
+  <h3>Basis-URL</h3>
+  
+  <p>Die Basis-URL für die <span translate="No">CMS-API</span> ist:</p>
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">https://cms.api.brightcove.com/v1</code></pre>
+  
+  <h4>Account-Pfad</h4>
+  
+  <p>In allen Fällen werden Anfragen nach einem bestimmten gestellt <span translate="No">Video-Cloud</span> Konto. Sie fügen also immer den Begriff <code translate="No">accounts</code> gefolgt von Ihrer Konto-ID zur Basis-URL hinzu:</p>
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">https://cms.api.brightcove.com/v1<strong>/accounts/{account_id}</strong></code></pre>
+  
+  <h3>Authentifizierung</h3>
+  
+  <p>Die Authentifizierung für Anfragen erfordert eine <span translate="No">Autorisierungs-Header</span> :</p>
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">Authorization: Bearer {access_token}</code></pre>
+  
+  <p>Die <code translate="No">access_token</code> ist ein temporäres OAuth2-Zugriffstoken, das von der <span translate="No">Brightcove-OAuth</span> Service. Weitere Informationen finden Sie in der <a href="/oauth/getting-started/overview-oauth-api-v4.html">Übersicht über Brightcove OAuth</a>.</p>
+
+  <p>Die einfachste Möglichkeit, Client-Anmeldeinformationen zu erstellen, ist über die Brightcove Studio-Admin-Seiten. Detaillierte Anweisungen finden Sie unter <a href="https://studio.support.brightcove.com/admin/managing-api-authentication-credentials.html">Anmeldeinformationen für die API-Authentifizierung verwalten</a></p>
+
+  
+  
+  <h3>Betrieb</h3>
+  
+  <p>Wenn Sie Client-Anmeldeinformationen anfordern, müssen Sie die Art des Kontozugriffs oder der gewünschten Vorgänge angeben. Im Folgenden finden Sie eine Liste der derzeit unterstützten Operationen für die <span translate="No">CMS-API</span> :</p>
+  
+  <ul>
+    <li>Videodaten:
+    <p><code translate="No">video-cloud/video/read</code><br />
+    <code translate="No">video-cloud/video/create</code><br />
+    <code translate="No">video-cloud/video/update</code><br />
+    <code translate="No">video-cloud/video/delete</code><br />
+    oder<br />
+    <code translate="No">video-cloud/video/all</code><br />
+    <code translate="No">video-cloud/video/assets/delete</code> (Only needed if you want to delete digital masters - note that you <strong>cannot</strong> get this permission when create credentials in Studio. Dies muss über die OAuth-API oder die <a href="/oauth/code-samples/oauth-api-sample-create-client-credentials.html">Von Brightcove Learning Services erstellte Beispiel-App</a>.)</p>
+    </li>
+    <li>Playlist-Daten:
+    <p><code translate="No">video-cloud/playlist/read</code><br />
+    <code translate="No">video-cloud/playlist/create</code><br />
+    <code translate="No">video-cloud/playlist/update</code><br />
+    <code translate="No">video-cloud/playlist/delete</code><br />
+    oder<br />
+    <code translate="No">video-cloud/playlist/all</code></p>
+    </li>
+    <li>Benachrichtigungen:
+    <ul>
+      <li><code translate="No">video-cloud/notifications/all</code> (for <a href="#notifications">Notifications</a>)</li>
+    </ul>
+    </li>
+  </ul>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Rate_limiting">Ratenbegrenzung</h2>
+  
+  <p>Dies <span translate="No">CMS-API</span> bietet ungecachten Lesezugriff auf die Daten. Dies ist wichtig für zeitkritische Veröffentlichungsworkflows, da Sie Änderungen an Videos und Playlists mithilfe der <span translate="No">CMS-API</span> und lesen Sie schnell die Daten, um zu überprüfen, ob sie richtig sind.</p>
+  
+  <p>Die <span translate="No">CMS-API</span> ist nicht für die Nutzung in großem Umfang zur Laufzeit geeignet (z. B. für den Zugriff auf Videos auf einer öffentlichen Webseite mit hohem Datenverkehr). Für Anwendungen mit hohem Datenverkehr müssen Sie eine zwischengespeicherte Schnittstelle verwenden, wie z <span translate="No">Wiedergabe-API</span> , Galerie, Player oder die nativen SDKs.</p>
+  
+  <p>Um die Leistung der <span translate="No">Video-Cloud</span> System, nicht mehr als 20 gleichzeitige Anrufe an das <span translate="No">CMS-API</span> sind pro Konto erlaubt. Die Zugriffshäufigkeit sollte weniger als 10 Anfragen pro Sekunde betragen.</p>
+  
+  <aside class="bcls-aside bcls-aside--information">Gleichzeitige Aufrufe treten auf, wenn mehrere parallel laufende Prozesse oder Apps API-Anfragen stellen. Da die Ausführung einer Anfrage länger als eine Sekunde dauern kann, können Sie das Gleichzeitigkeitslimit überschreiten, auch wenn Sie nicht mehr als 10 Anfragen pro Sekunde stellen.</aside>
+  
+  <p>Wenn mehrere Anwendungen in die <span translate="No">CMS-API</span> für ein Konto sollten diese Anwendungen über eine Backoff- und Wiederholungslogik verfügen, um Instanzen zu verarbeiten, in denen Parallelitätslimits oder Ratenlimits erreicht werden.</p>
+  
+  <p>Wenn entweder die Geschwindigkeits- oder Gleichzeitigkeitsgrenze überschritten wird, a <code translate="No">429 - TOO_MANY_REQUESTS</code> Fehler wird zurückgegeben.</p>
+  
+  <h3>Konflikte mit der Referenz-ID</h3>
+  
+  <p>Um die Einzigartigkeit von Referenz-IDs zu gewährleisten, <span translate="No">CMS-API</span> sperrt die ID für bis zu 3 Minuten nach jedem Vorgang an dem Video, dem sie zugewiesen ist. Dies kann dazu führen, dass 409-Fehler zurückgegeben werden, wenn Sie versuchen, eine Anforderung zu wiederholen, die zu schnell fehlschlägt, oder wenn Sie versuchen, eine Referenz-ID zu früh nach dem Löschen des Videos, dem sie zuvor zugewiesen war, wiederzuverwenden. Siehe die <a href="/cms/references/cms-api-error-message-reference.html#409_conflict">Fehlermeldungsreferenz</a> für mehr Details.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="video_asset_limit">Limit für Video-Assets</h2>
+  
+  <p>Es gibt ein Limit von 1.000 Assets pro Video. Zu den Assets gehören Wiedergaben, Audiospuren, Textspuren und Bilder sowie der digitale Master. Wiedergaben und Bilder summieren sich selten auf mehr als 10-15 Assets. Selbst wenn Sie separate Audio- und Textspuren für 150 verschiedene Sprachen hätten, hätten Sie immer noch weniger als 350 Assets.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Notes_on_usage">Hinweise zur Verwendung</h2>
+  
+  <aside class="bcls-aside bcls-aside--information">
+  <p>Die <span translate="No">CMS-API</span> ist für Integrationen und Veröffentlichungsworkflows vorgesehen. Sie können diese API nicht von einer öffentlichen Webseite aus clientseitig aufrufen, da dies die Offenlegung Ihrer Client-Anmeldeinformationen für die API erfordern würde (aus diesem Grund ist die API nicht CORS-fähig). Sie können Aufrufe von einer clientseitigen (Web-)App aus tätigen, vorausgesetzt, Sie leiten die API-Aufrufe über einen serverseitigen Proxy weiter. <span translate="No">Brightcove-Lerndienste</span> bietet mehrere <a href="/cms/code-samples/">Beispiel-Apps</a> die diesen Ansatz verwenden, und a <a href="/getting-started/learning-guide-using-rest-apis.html">Anleitung zum Erstellen dieser Art von App</a>.</p>
+  
+  <p>Wenn Sie alle Ihre Videos oder große Gruppen von Videos abrufen möchten, sehen Sie sich unbedingt die <a href="#largeDataSets">Hinweis zu großen Datensätzen</a>.</p>
+  
+  <h4>Vermeiden Sie hartcodierte URLs</h4>
+  
+  <p>URLs für Miniaturansichten, Poster, Videodateien und andere Medien sollten niemals in Ihren Seiten oder Anwendungen fest codiert sein. Die <span translate="No">CMS-API</span> gibt immer die aktuellen URLs für Mediendateien zurück, die URLs selbst können sich jedoch ändern. Sie sollten die verwenden <span translate="No">CMS-API</span> ( oder <span translate="No">Wiedergabe-API</span> ) fordert, diese URLs bei jedem Laden der Seite abzurufen oder sie für höchstens sechs Stunden im Cache zu speichern.</p>
+  
+  <h5>Zwischenspeichern von Video- und Bild-URLs</h5>
+  
+  <p><strong>Sie können URLs für Videos und Bilder zwischenspeichern, um die Seitenleistung zu verbessern, aber der Cache muss regelmäßig aktualisiert werden.</strong> Wenn Sie die abgerufenen URLs zwischenspeichern, um die Leistung Ihrer Seiten zu verbessern, müssen Sie den Cache aktualisieren, indem Sie die API-Aufrufe mindestens alle sechs Stunden wiederholen.</p>
+  </aside>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Methods">Methoden</h2>
+  
+  <p>Derzeit unterstützt die API die folgenden Anfragetypen:</p>
+  
+  <ul>
+    <li><code translate="No">GET</code></li>
+    <li><code translate="No">POST</code></li>
+    <li><code translate="No">PATCH</code></li>
+    <li><code translate="No">PUT</code></li>
+    <li><code translate="No">DELETE</code></li>
+  </ul>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Parameters">Parameter</h2>
+  
+  <p>Beachten Sie, dass alle Parameter <strong>Optional</strong>. Sofern nicht anders angegeben, gelten sie für <code translate="No">GET</code> Anfragen für Videos und Playlists.</p>
+  
+  <table class="bcls-table">
+    <caption class="bcls-caption--table">GET-Anforderungsparameter</caption>
+    <thead class="bcls-table__head">
+      <tr>
+        <th>Parameter</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody class="bcls-table__body">
+      <tr>
+        <td><code translate="No">q</code></td>
+        <td>Abfragestring für Suchen - siehe <a href="#search">Suchsyntax</a> für mehr Informationen</td>
+      </tr>
+      <tr>
+        <td><code translate="No"><a href="#paging">limit</a> </code></td>
+        <td>Anzahl der zurückzugebenden Videos – muss eine ganze Zahl zwischen 1 und 100 sein. <strong>Standardwert: 20</strong></td>
+      </tr>
+      <tr>
+        <td><code translate="No"><a href="#offset">offset</a> </code></td>
+        <td>Anzahl der zu überspringenden Videos (für Paging-Ergebnisse). Muss eine positive ganze Zahl sein. <strong>Standardwert: 0</strong></td>
+      </tr>
+      <tr>
+        <td><code translate="No"><a href="#sort">sort</a> </code></td>
+        <td>Eine Zeichenfolge, die das Feld angibt, nach dem sortiert werden soll. Beginnen mit <code translate="No">-</code> absteigend zu sortieren. Wenn ein Wert für <code translate="No">q</code> bereitgestellt wird, ist die Standardsortierung nach "Score" (Relevanz der Suchergebnisse zur ursprünglichen Abfrage). Wenn kein Wert für <code translate="No">q</code> bereitgestellt wird, ist die Standardsortierung nach <code translate="No">updated_at</code> absteigend. Die folgenden Felder sind für die Sortierung gültig: <code translate="No">name</code> , <code translate="No">reference_id</code> , <code translate="No">created_at</code> , <code translate="No">published_at</code> , <code translate="No">updated_at</code> , <code translate="No">schedule_starts_at</code> , <code translate="No">schedule_ends_at</code> , <code translate="No">state</code> , <code translate="No">plays_total</code> , und <code translate="No">plays_trailing_week</code></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h3 id="search">Videos suchen</h3>
+  
+  <p>Brightcove's <span translate="No">CMS-API</span> bietet eine programmatische Möglichkeit zur Suche nach Videos in Ihrem <span translate="No"> <span translate="No">Video-Cloud</span> </span> Bücherei.</p>
+  
+  <p>Um einfache und komplexe Suchen in Ihren Videodaten durchzuführen, verwenden Sie die <code translate="No">q</code> Parameter:</p>
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">https://cms.api.brightcove.com/v1/accounts/921483702001/videos?<strong>q={search terms}</strong></code></pre>
+  
+  <p>Weitere Informationen zur Suche nach Videos finden Sie im <a href="/cms/searching/cms-and-playback-apis-video-search-v2.html">Videos suchen</a> dokumentieren.</p>
+  
+  <p>Bei Wiedergabelisten sind die unterstützten Werte für die Suchzeichenfolge eingeschränkter. Sie können derzeit suchen nach <code translate="No">type</code> , <code translate="No">name</code> , <code translate="No">description</code> , und <code translate="No">reference_id</code>. Hier sind einige Beispiele für gültige Suchanfragen:</p>
+  
+  <ul>
+    <li><code translate="No">q=type:EXPLICIT</code></li>
+    <li><code translate="No">q=type:ACTIVATED_OLDEST_TO_NEWEST</code></li>
+    <li><code translate="No">q=type:ALPHABETICAL</code></li>
+    <li><code translate="No">q=bears+otters</code> (name, description, or reference ID must contain either "bears" or "otters")</li>
+    <li><code translate="No">q=%2Bname:bears+type:EXPLICIT</code> (name must contain "bears")</li>
+  </ul>
+  
+  <p>Sehen <a href="/cms/searching/cms-api-playlists-search.html">Playlists durchsuchen</a> für mehr Details.</p>
+  
+  <aside class="bcls-aside bcls-aside--information">Beachten Sie den Suchbegriff <code translate="No">playable:true/false</code> die Sie verwenden können, um nur abspielbare (oder nicht abspielbare) Videos zurückzugeben:
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">https://cms.api.brightcove.com/v1/accounts/:account_id/videos?q=%2Bplayable:true</code></pre>
+  
+  <p>Diese Abfrage erfordert, dass zurückgegebene Videos abspielbar sind (nicht deaktiviert, nicht geplant und ohne abspielbare Wiedergabeversionen).</p>
+  
+  <p>Wenn Sie nach Videos suchen, die <strong>nicht</strong> spielbar, verwenden <code translate="No">q=%2Bplayable:false</code>.</p>
+  </aside>
+  
+  <h3 id="paging">Paging-Ergebnisse</h3>
+  
+  <p>Verwenden Sie die <code translate="No"> <a href="#Parameters">limit</a> </code> Parameter, um anzugeben, wie viele Elemente Sie bei einer Anfrage zurückgeben möchten - bis zu 100. Sie können dann die <code translate="No"> <a href="#Parameters">offset</a> </code> Parameter zum Blättern durch Ergebnismengen, die größer als die . sind <code translate="No">limit</code>. Die <code translate="No">offset</code> ist die Anzahl der zu überspringenden Elemente.</p>
+  
+  <p>Die folgende Suche gibt beispielsweise Videos 51-75 der Gesamtergebnismenge zurück, vorausgesetzt, die Gesamtergebnismenge enthält mindestens 75 Videos:</p>
+  
+  <pre class="line-numbers">
+        <code class="language-http" translate="No">/videos?q=updated_at:2014-01-01..2014-06-30&amp;limit=25&amp;offset=50</code></pre>
+  
+  <p>Die <code translate="No">limit</code> und <code translate="No">offset</code> Parameter können sowohl für Videos als auch für Wiedergabelisten verwendet werden.</p>
+  
+  <aside class="bcls-aside bcls-aside--information">Notiz: <code translate="No">limit</code> und <code translate="No">offset</code> tun <strong>nicht</strong> funktioniert, wenn Sie die zu einer Playlist gehörenden Videos anfordern - diese Anforderung gibt immer alle Videos in der Playlist zurück.</aside>
+  
+  <h4>Best Practice beim Paging</h4>
+  
+  <p>Da möglicherweise gleichzeitige Änderungsvorgänge mit der CMS-API ausgeführt werden, wird empfohlen, beim Blättern durch Ihre Ergebnismenge die folgenden Schritte auszuführen:</p>
+  
+  <ol class="bcls-tasklist">
+    <li>Mach ein <code translate="No"> <a href="/cms/references/reference.html#api-videoGroup-Get_Video_Count">count</a> </code> Anfrage, um die Gesamtzahl der Videos in Ihrem Resultset abzurufen.
+  
+    <pre class="line-numbers">
+      <code class="language-http" translate="No">/accounts/578380111111/counts/videos?q=tags:nature</code></pre>
+    </li>
+    <li>Verwenden Sie die <code translate="No"> <a href="/cms/references/reference.html#api-videoGroup-Get_Videos">limit</a> </code> und <code translate="No"> <a href="/cms/references/reference.html#api-videoGroup-Get_Videos">offset</a> </code> -Parameter, um Datengruppen aus Ihrer Ergebnismenge zurückzugeben.
+    <pre class="line-numbers">
+      <code class="language-http" translate="No">/accounts/578380111111/videos?q=tags:nature&amp;limit=20&amp;offset=50</code></pre>
+    </li>
+    <li>Beachten Sie, dass einige Seiten möglicherweise weniger als 20 Videos enthalten. Sie wissen, dass Sie das Ende der Ergebnismenge erreicht haben, wenn Sie so viele Videos wie im ersten angefordert haben <code translate="No">count</code> Anfrage.</li>
+  </ol>
+  
+  <p>Zusammenfassend: Rufen Sie so lange Seiten ab, bis Sie eine Videoanzahl erhalten, die dem Original entspricht. <code translate="No">count</code> Anfrage, da diese Zahl auf der Seite der Überschätzung liegen sollte. Nachfragen:</p>
+  
+  <pre class="line-numbers">
+      <code class="language-http" translate="No">count / page-size + 1 page</code></pre>
+  
+  <h3>Sortieren von Videoergebnissen</h3>
+  
+  <p>Verwenden Sie den Parameter <code translate="No">sort=field_name</code> um anzugeben, wie die Ergebnisse sortiert werden sollen - Sie können sowohl Videos als auch Wiedergabelisten sortieren. Sie können nach folgenden Videofeldern sortieren: <sup> <strong> <a href="#note1-1">[1-1]</a> </strong> </sup></p>
+  
+  <aside class="bcls-aside bcls-aside--information">Präfixieren Sie dem Feldnamen ein Minuszeichen ( <code translate="No">sort= <span class="bcls-highlight">-</span>field_name</code>) für absteigende Reihenfolge.</aside>
+  
+  <ul>
+    <li><code translate="No">name</code></li>
+    <li><code translate="No">reference_id</code></li>
+    <li><code translate="No">created_at</code></li>
+    <li><code translate="No">published_at</code></li>
+    <li><code translate="No">updated_at</code></li>
+    <li><code translate="No">schedule_starts_at</code> (note: this is the <strong>sort</strong> field - the <strong>search field is <code translate="No">schedule.starts_at</code> </strong>)</li>
+    <li><code translate="No">schedule_ends_at</code> (note: this is the <strong>sort</strong> field - the <strong>search field is <code translate="No">schedule.ends_at</code> </strong>)</li>
+    <li><code translate="No">state</code></li>
+    <li><code translate="No">plays_total</code> <sup> <strong> <a href="#note1-2">[1-2]</a> </strong> </sup></li>
+    <li><code translate="No">plays_trailing_week</code> <sup> <strong> <a href="#note1-2">[1-2]</a> </strong> </sup></li>
+  </ul>
+  
+  <p><strong>Anmerkungen</strong></p>
+  
+  <ul>
+    <li id="note1-1"><sup><strong>[1-1]</strong> </sup> Wenn Sie für einen Videosuchanruf keinen Sortierwert angeben, werden die Ergebnisse nach Relevanz sortiert. Wenn Sie keinen Sortierwert für a . angeben <code translate="No">GET</code> Videoanruf, die Ergebnisse werden sortiert nach <code translate="No">updated_at</code> absteigend.</li>
+    <li id="note1-2"><sup><strong>[1-2]</strong> </sup> Sie können nach sortieren <code translate="No">plays_total</code> oder <code translate="No">plays_trailing_week</code> , aber diese Felder sind nicht in den Ergebnissen enthalten</li>
+  </ul>
+  
+  <h3>Playlist-Ergebnisse sortieren</h3>
+  
+  <p>Sie können Wiedergabelisten nach den folgenden Feldern sortieren:</p>
+  
+  <ul>
+    <li><code translate="No">name</code></li>
+    <!-- <li>created_at (default)</li> -->
+    <li><code translate="No">updated_at</code> (default)</li>
+    <!-- <li>reference_id</li> -->
+  </ul>
+  
+  <aside class="bcls-aside bcls-aside--information">Präfixieren Sie dem Feldnamen ein Minuszeichen ( <code translate="No">sort= <span class="bcls-highlight">-</span>field_name</code>) für absteigende Reihenfolge.</aside>
+  
+  <h4 id="largeDataSets">Alle Videos und große Datensätze</h4>
+  
+  <p>Wenn Sie alle Videos in Ihrem Konto oder eine große Anzahl von Videos abrufen, müssen Sie einige Dinge beachten:</p>
+  
+  <ol>
+    <li>Sie könnten versucht sein, die größte zulässige zu verwenden <code translate="No">limit</code> (100), aber es ist besser, Videos in Stapeln von 25 oder weniger abzurufen, um die Möglichkeit von Zeitüberschreitungen bei API-Anfragen zu minimieren</li>
+    <li>Beim Blättern durch große Datensätze ist es möglich, dass die Videodaten während des Vorgangs aktualisiert werden, was dazu führen kann, dass sich Elemente in den Antworten verschieben:
+    <ul>
+      <li>Möglicherweise wird ein Element auf aufeinanderfolgenden Seiten wiederholt</li>
+      <li>Ein Element kann übersehen werden, da es in einen vorherigen Antwortsatz verschoben wurde</li>
+    </ul>
+  
+    <p>Um die erste Möglichkeit zu berücksichtigen, sollte Ihre App die vollständige Artikelliste deduplizieren, nachdem Sie das Abrufen von Videos abgeschlossen haben. Um die zweite Möglichkeit zu handhaben, müssen Sie die Gesamtzahl der abgerufenen Elemente (nach der Deduplizierung) mit der erwarteten Anzahl vergleichen und dann die Anforderungen erneut ausführen und die Ergebnisse nach last_modified_date (absteigend) sortieren - das sollte nicht nötig sein mehr als einen Stapel abrufen, um verpasste Artikel abzuholen.</p>
+    </li>
+    <li>Sie können die Wahrscheinlichkeit der Szenarien im vorherigen Element verringern, indem Sie die zurückgegebenen Ergebnisse entsprechend sortieren. Die Standardsortierung nach <strong>Relevanz</strong> for searchs basiert auf einem komplexen Algorithmus, der nach Kombinationen von Schlüsselwörtern, Tags und benutzerdefinierten Feldwerten sucht. Wenn Sie auf der Grundlage mehrerer Schlüsselwörter, Tags und/oder benutzerdefinierter Felder nach Videos suchen, ist die Sortierung nach Relevanz genau das Richtige für Sie. Wenn Sie jedoch nur versuchen, alle oder einen großen Satz Ihrer Videos abzurufen, stellen Sie die <code translate="No">sort</code> Parameter gibt Ihnen explizit mehr Kontrolle über die Reihenfolge der zurückgegebenen Elemente.</li>
+  </ol>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Video_operations">Videofunktionen</h2>
+  
+  <p>Videooperationen umfassen:</p>
+  
+  <ul>
+    <li>Erhalten Sie eine Anzahl von Videos oder Suchergebnissen</li>
+    <li>Alle Videos abrufen</li>
+    <li>Rufen Sie ein oder mehrere Videos nach ID oder Referenz-ID ab</li>
+    <li>Videos erstellen, abrufen, aktualisieren und löschen</li>
+    <li>Nach Videos suchen</li>
+    <li>Erhalten Sie Videoquellen, Bilder und die digitalen Masterinformationen</li>
+    <li>Holen Sie sich die Playlists, zu denen ein Video gehört</li>
+    <li>Entfernen Sie das Video aus allen Playlists</li>
+  </ul>
+  
+  <p>Details zu den Videooperationen finden Sie im <a href="/cms/references/reference.html#api-videoGroup">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Playlist_operations">Playlist-Vorgänge</h2>
+  
+  <p>Zu den Playlist-Vorgängen gehören:</p>
+  
+  <ul>
+    <li>Anzahl der Wiedergabelisten abrufen</li>
+    <li>Alle Playlists abrufen</li>
+    <li>Playlists erstellen, aktualisieren und löschen</li>
+    <li>Anzahl der Videos in einer Playlist abrufen</li>
+    <li>Holen Sie sich die Videos in eine Playlist</li>
+  </ul>
+  
+  <p>Details zu den Playlist-Operationen finden Sie in der <a href="/cms/references/reference.html#api-playlistGroup">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Assets">Vermögenswerte</h2>
+  
+  <p>Asset-Operationen ermöglichen Ihnen die Verwaltung von Assets, einschließlich Darstellungen, Manifesten, Bildern und Textspuren. Um Assets aufzunehmen, müssen Sie die <a translate="No" href="/dynamic-ingest/index.html">Dynamische Aufnahme-API</a>. Die <code translate="No">POST</code> und <code translate="No">PATCH</code> Operationen für die <a href="/cms/references/reference.html#api-assetGroup"> <span translate="No">CMS-API</span> </a> <code translate="No">/assets</code> kann zum Hinzufügen und Aktualisieren verwendet werden <strong>Remote-Assets</strong>. <span translate="No">CMS-API</span> GET-Operationen funktionieren für <strong>beide</strong> aufgenommene und entfernte Assets.</p>
+  
+  <ul>
+    <li>Wiedergabeversionen hinzufügen, aktualisieren oder löschen</li>
+    <li>Hinzufügen, Aktualisieren oder Löschen von Metadaten für das digitale Master</li>
+    <li>Manifeste für segmentierte Videotypen wie HLS . hinzufügen, aktualisieren oder löschen</li>
+    <li>Poster und Miniaturbilder hinzufügen, aktualisieren oder entfernen</li>
+    <li>Hinzufügen, Aktualisieren oder Entfernen von WebVTT-Textspuren oder DFXP-Untertiteln</li>
+  </ul>
+  
+  <p>Details zu den Asset-Operationen finden Sie im <a href="/cms/references/reference.html#api-assetGroup">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Custom_field_operations">Benutzerdefinierte Feldoperationen</h2>
+  
+  <p>Derzeit gibt es eine benutzerdefinierte Feldoperation:</p>
+  
+  <ul>
+    <li>Alle benutzerdefinierten Felder für ein Konto abrufen</li>
+  </ul>
+  
+  <p>Details zu den benutzerdefinierten Feldoperationen finden Sie im <a href="/cms/references/reference.html#api-Custom_Fields">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Folder_operations">Ordnervorgänge</h2>
+  
+  <p>Ordneroperationen ermöglichen Ihnen:</p>
+  
+  <ul>
+    <li>Holen Sie sich eine Liste von Ordnern</li>
+    <li>Ordner erstellen, aktualisieren und löschen</li>
+    <li>Rufen Sie eine Liste von Videos in einem Ordner ab</li>
+    <li>Ein Video zu einem Ordner hinzufügen</li>
+    <li>Ein Video aus einem Ordner entfernen</li>
+  </ul>
+  
+  <aside class="bcls-aside bcls-aside--information">
+  <p>Jeder Ordnername <strong>muss</strong> innerhalb des Kontos eindeutig sein und bis zu 100 Zeichen enthalten. Der Ordnername darf auch nicht leer sein oder das Zeichen enthalten <code translate="No">/</code></p>
+  </aside>
+  
+  <p>Einzelheiten zu den Ordnervorgängen finden Sie im <a href="/cms/references/reference.html#api-folderGroup">API-Referenz</a>.</p>
+  </section>
+  
+  <section class="bcls-section">
+  <h2 id="Notifications">Benachrichtigungen</h2>
+  
+  <p>Sie können Benachrichtigungen erhalten, wenn <code translate="No">video_change</code> Ereignisse in Ihrer Videobibliothek auftreten. Benachrichtigungen werden an die von Ihnen angegebene URL gesendet, die auf eine Anwendung verweisen sollte, die mit der Bearbeitung fähig ist <code translate="No">HTTP POST</code> Anfragen.</p>
+  
+  <aside class="bcls-aside bcls-aside--information">Hinweise:
+  <ul>
+    <li>Jede Änderung der Video-Metadaten löst eine a <code translate="No">video_change</code> Veranstaltung. Änderungen an den vom Video verwendeten Assets werden <strong>nicht</strong> Change-Events auslösen.</li>
+    <li>Neben Benachrichtigungen gibt es <a href="/cms/references/reference.html#api-videoGroup-Get_Status_of_Ingest_Jobs">Status-APIs</a> die es Ihnen ermöglichen, den Status von Aufnahmeaufträgen (Aufnahmen, Ersetzen oder erneutes Umcodieren) von Jobs abzurufen, die einem Video zugeordnet sind.</li>
+  </ul>
+  </aside>
+  
+  <h3>Benachrichtigungsfehler</h3>
+  
+  <p>Das Benachrichtigungssystem behandelt jede 4xx- oder 5xx-Rücksendung vom Kundenserver als wiederholbaren Fehler. Fehlgeschlagene Rückrufe werden bis zu 20 Mal wiederholt, wobei die Verzögerung zwischen nachfolgenden Rückrufen exponentiell ansteigt. Die ersten Versuche werden innerhalb von Minuten nach dem ersten Rückrufversuch durchgeführt. Wenn der Rückruf weiterhin fehlschlägt und wir bis zum 20. Wiederholungsversuch gelangen, beträgt die Wiederholungsverzögerung einige Tage.</p>
+  
+  <aside class="bcls-aside bcls-aside--information"><code translate="No">video_change</code> events are triggered by automated system processes as well as user actions, so these events will not always corresponds to changes you made to video properties in Studio or via the APIs.</aside>
+  
+  <h3>Firewalls</h3>
+  
+  <p>Falls Ihre Organisation eine strenge Richtlinie bezüglich der Quellen des eingehenden Datenverkehrs durch Ihre Firewall hat, lassen wir alle IPs der AWS-Region Ost zu. Dies kann sich ändern, daher sollten alle AWS-IPs auf die Whitelist gesetzt werden. Sehen <a href="https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html">https://docs.aws.amazon.com/general/latest/gr/aws-ip-ranges.html</a> für mehr Informationen.</p>
+  
+  <h3>Benachrichtigungsvorgänge</h3>
+  
+  <p>Die derzeit für Benachrichtigungen verfügbaren Operationen sind:</p>
+  
+  <ul>
+    <li>Abonnements erstellen</li>
+    <li>Holen Sie sich ein oder alle Abonnements</li>
+    <li>Abonnement löschen</li>
+  </ul>
+  
+  <p>Einzelheiten zu den Benachrichtigungsvorgängen finden Sie im <a href="/cms/references/reference.html#api-notificationGroup">API-Referenz</a>.</p>
+  </section>
+  </article>

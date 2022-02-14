@@ -1,0 +1,74 @@
+---
+title: Bild-Transcoder
+---
+
+<div class="BCL_objectives"><p>Verwenden des App Cloud-Bildtranscodierungsdienstes, der die Leistung Ihrer App erheblich verbessern kann, indem Bilder für die mobile Bereitstellung optimiert werden.</p>
+  <!--break--></div>
+  <p>App Cloud bietet einen Dienst, mit dem Sie Bilder für Ihre Apps transkodieren können. Mit dem Bildtranskodierungsdienst können Sie Ihr Quellbild nehmen und es in die Größe und das Format konvertieren, die Sie für Ihre Apps benötigen. Beispiel: Sie haben ein Originalbild mit 300 x 300 Pixeln, Ihre App muss es jedoch mit 100 x 100 anzeigen. Sie können den Bildtranscodierungsdienst verwenden, um sicherzustellen, dass das Bild immer die richtige Größe für seinen Kontext hat, ohne für jeden Kontext, in dem Sie das Bild verwenden, eine neue Bilddatei erstellen zu müssen. Sie können das Bild auch zuschneiden und die Qualität (Komprimierungsverhältnis) für JPG-Bilder festlegen. Mit dem Bildtranskodierungsdienst können Sie:</p>
+  <ul>
+      <li>Verbessern Sie die Leistung Ihrer App deutlich, indem Sie die Dateigröße und die Netzwerkbandbreite, die zum Anzeigen Ihrer App erforderlich sind, erheblich reduzieren</li>
+      <li>Reduzieren Sie den Speicherbedarf, indem Sie die Größe der Bilder reduzieren.</li>
+      <li>Stellen Sie sicher, dass Ihre Bilder die richtige Größe haben, um auf mobilen Geräten angezeigt zu werden.</li>
+      <li>Nutzen Sie den App Cloud-Server-Cache, verbessern Sie die App-Leistung und reduzieren Sie die Belastung Ihrer eigenen Server.</li>
+  </ul>
+  <p>Der App Cloud-Bildtranscodierungsdienst fungiert als Proxy zwischen Ihren Bildern und Ihren Anwendungen. Der Zugriff auf den Dienst erfolgt über eine einfache URL, in der Sie Ihrer Bild-URL unsere Transkodierungsdienst-URL voranstellen. Dadurch können Sie unseren Transcoding-Service mit sehr geringem Aufwand in Ihre Apps einbinden. Wenn Sie beispielsweise ein Bild haben, das bei . lebt <code>http://my.example.com/image.png</code> Normalerweise würdest du es so anfordern:</p>
+  <pre>
+  &lt;img &nbsp;src="http://my.example.com/image.png" &nbsp;alt="Bandbreiten-hungriges Bild" width="500" height="500" /&gt; </pre>
+  <p>Um es in ein kleineres Bild mit einer Größe von 100 x 100 Pixeln zu transcodieren, geben Sie einfach die folgende Anfrage ein:</p>
+  <pre>
+  &lt;img &nbsp;src="http://transcode.appcloud.brightcove.com?image=http://my.example.com/image.png&amp;width=100&amp;height=100" &nbsp;alt="Mein Svelte-Bild" width="100" height="100" /&gt;</pre>
+  <p>So verkleinern Sie ein Bild auf 100 Pixel Breite unter Beibehaltung des ursprünglichen Seitenverhältnisses:</p>
+  <pre>
+  &lt;img &nbsp;src="http://transcode.appcloud.brightcove.com?image=http://my.example.com/image.png&amp;width=100" width="100" /&gt;</pre>
+  <p>So verkleinern Sie ein Bild auf 100 Pixel Breite oder 100 Pixel Höhe, je nachdem, welcher Wert größer ist, und behalten Sie dabei das ursprüngliche Seitenverhältnis bei:</p>
+  <pre>
+  &lt;img &nbsp;src="http://transcode.appcloud.brightcove.com?image=http://my.example.com/image.png&amp;max_dimension=100" /&gt;</pre>
+  <p>Um das Bild zuzuschneiden und dabei ein 100x100px großes Stück in der Mitte zu erhalten, stellen Sie einfach die folgende Anfrage:</p>
+  <pre>
+  &lt;img &nbsp;src="http://transcode.appcloud.brightcove.com?image=http://my.example.com/image.png&amp;crop=200,200,100,100" &nbsp;alt="Mein Svelte-Bild" width="100" height="100" /&gt;</pre>
+  
+  <p>Um den Bildtranscodierungsdienst nutzen zu können, muss Ihr Bild unter einer öffentlich zugänglichen URL zugänglich sein. Das Bild muss im PNG-, JPEG- oder GIF-Format vorliegen.</p>
+  <h2><a name="params"></a>Abfrageparameter</h2>
+  <p>Der Dienstaufruf zur Bildtranscodierung verwendet die folgenden Abfrageparameter:</p>
+  <h3>Bild (erforderlich)</h3>
+  <p>Die öffentlich zugängliche URL, unter der Ihr Originalbild zu finden ist. Zum Beispiel, <code>image=http://my.example.com/image.png</code>.</p>
+  <h3>Format (optional)</h3>
+  <p>Das Format des neuen Bildes, das eines sein kann <code>png</code> , <code>jpg</code> , oder <code>gif</code>. Wenn Sie das Format nicht angeben, bleibt das Ausgabeformat vom Originalbild unverändert.</p>
+  <h3>Größenparameter (optional)</h3>
+  <p>Sie können einen der Größenparameter verwenden, <code>Breite</code> , <code>Höhe</code> , oder <code>max_dimension</code> , wenn das neue Bild eine andere Größe als das Originalbild haben soll. Diese Parameter geben eine Dimension des endgültigen Bildes in Pixeln an.</p>
+  <ul>
+      <li>Wenn Sie keine Größenparameter angeben, hat das neue Bild dieselbe Breite und Höhe wie das Originalbild.</li>
+      <li>Wenn Sie angeben <code>Breite</code> , aber nicht <code>Höhe</code> , hat das neue Bild die von Ihnen angegebene Breite und die Höhe, die durch das Seitenverhältnis des Originalbilds bestimmt wird.</li>
+      <li>Wenn Sie angeben <code>Höhe</code> , aber nicht <code>Breite</code> , hat das neue Bild die von Ihnen angegebene Höhe und die Breite, die durch das Seitenverhältnis des Originalbilds bestimmt wird.</li>
+      <li>Wenn Sie angeben <code>max_dimension</code> , dann hat die größere Dimension des neuen Bildes die von Ihnen angegebene Größe, und die kleinere Dimension hat die Größe, die durch das Seitenverhältnis des Originalbilds bestimmt wird.</li>
+  </ul>
+  <p>In jedem Fall hat das neue Bild dasselbe Seitenverhältnis wie das Originalbild, es sei denn, Sie geben beide a <code>Breite</code> und <code>Höhe</code> und dieses Seitenverhältnis unterscheidet sich vom ursprünglichen Seitenverhältnis.</p>
+  <h3>Zuschneideparameter (optional)</h3>
+  <h2>Verwenden einer Transcodierungs-Hilfsfunktion</h2>
+  <p>Um Ihr Bild zuzuschneiden, fügen Sie den Parameter hinzu:</p>
+  <pre>Zuschneiden=x,y,w,h</pre>
+  <p>Hier sind x und y die Koordinaten des Startpunkts, gemessen in Pixeln von der oberen linken Ecke (0,0). w und h sind zu bewahrende horizontale und vertikale Pixel, beginnend am Startpunkt und weiter nach rechts und unten.</p>
+  <p>Wenn sowohl Beschneiden als auch Größe angegeben sind, wird zuerst das Beschneiden angewendet und dann die Größe des beschnittenen Bildes.</p>
+  <h3>Qualitätsparameter (optional)</h3>
+  <p>Geben Sie nur für JPG-Bilder das Komprimierungsverhältnis für das resultierende Bild an, indem Sie den Parameter hinzufügen:</p>
+  <pre>Qualität=x</pre>
+  <p>x ist das anzuwendende Kompressionsverhältnis; der Standardwert ist 70.</p>
+  <p>Hier ist eine praktische JavaScript-Funktion zum Generieren einer Bildtranscodierungs-URL:</p>
+  <pre>
+  Funktion getTranscodeURL(URL, Optionen) { var src = "http://transcode.appcloud.brightcove.com?image=" + url; if (options) { if (options.max_dimension) { src += "&amp;max_dimension=" + options.max; } anders { if (options.width) { src += "&amp;width=" + options.width; } if (Optionen.Höhe) { src += "&amp;height=" + options.height; } } if (optionen.format) { src += "&amp;format=" + options.format; } if (options.crop) { src += "&amp;crop=" + options.crop; } if (Optionen.Qualität) { src += "&amp;quality" + options.quality; } } src zurückgeben; };</pre>
+  <p>So transcodieren Sie beispielsweise ein Bild auf eine Breite von 200 Pixeln:</p>
+  <pre>
+  var tx_url = getTranscodeURL("http://www.example.com/example.jpg", { width: 200 });</pre>
+  <p>So beschneiden Sie ein Bild auf 160 x 90, beginnend mit 100 Pixeln von links und 70 Pixel von oben und geben eine Komprimierungsrate von 65 an:</p>
+  <pre>var tx_url = getTranscodeURL("http://www.example.com/example.jpg", { crop: "100,70,160,90" , quality: 65 });</pre>
+  <h2>Beispiele für transcodierte Bilder</h2>
+  <p>Sehen Sie sich diese Beispiele an, um zu sehen, wie drastisch der Transcodierungsdienst die Bandbreite und den Speicherbedarf von Bilddateien reduzieren kann.</p>
+  <p>Zuerst haben wir ein hochwertiges JPEG-Stockbild:<br />
+  <img alt="" src="http://img.brightcove.com/ac-transcode-before.jpg" /></p>
+  <p>Dieses Bild ist 425 x 282 groß und hat eine Dateigröße von 130.879 Byte.</p>
+  <p>Übergeben Sie es durch den Transcodierungsdienst mit width=250:<br />
+  <img alt="" src="http://img.brightcove.com/ac-transcode-after.jpg" /></p>
+  <p>Das Bild ist jetzt 250x165 groß und hat eine Dateigröße von 34.017 Byte, was einer Reduzierung um 74 % entspricht.</p>
+  <p>Schließlich können wir es in die Miniaturansichtsgröße (Breite = 75) transcodieren:<br />
+  <img alt="" src="http://img.brightcove.com/ac-transcode-thumb.jpg" /></p>
+  <p>Das Bild ist jetzt 75x49, mit einer Dateigröße von 7.686 Bytes, eine Reduzierung um 94%!</p>
